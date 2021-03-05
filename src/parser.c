@@ -425,15 +425,16 @@ float *get_classes_multipliers(char *cpc, const int classes, const float max_del
             if (counters_per_class[i] < 1) counters_per_class[i] = 1;
             if (max_counter < counters_per_class[i]) max_counter = counters_per_class[i];
         }
-        classes_multipliers = (float *)calloc(classes_counters, sizeof(float));
+        uint32_t number_of_classes = classes_counters;
+        classes_multipliers = (float *)calloc(number_of_classes, sizeof(float));
         for (i = 0; i < classes_counters; ++i) {
             classes_multipliers[i] = max_counter / counters_per_class[i];
             if(classes_multipliers[i] > max_delta) classes_multipliers[i] = max_delta;
         }
         free(counters_per_class);
-        printf(" classes_multipliers: ");
-        for (i = 0; i < classes_counters; ++i) printf("%.1f, ", classes_multipliers[i]);
-        printf("\n");
+        // printf(" classes_multipliers: ");
+        // for (i = 0; i < classes_counters; ++i) printf("%.1f, ", classes_multipliers[i]);
+        // printf("\n");
     }
     return classes_multipliers;
 }
@@ -474,8 +475,8 @@ layer parse_yolo(list *options, size_params params)
     else if (strcmp(iou_loss, "diou") == 0) l.iou_loss = DIOU;
     else if (strcmp(iou_loss, "ciou") == 0) l.iou_loss = CIOU;
     else l.iou_loss = IOU;
-    fprintf(stderr, "[yolo] params: iou loss: %s (%d), iou_norm: %2.2f, obj_norm: %2.2f, cls_norm: %2.2f, delta_norm: %2.2f, scale_x_y: %2.2f\n",
-        iou_loss, l.iou_loss, l.iou_normalizer, l.obj_normalizer, l.cls_normalizer, l.delta_normalizer, l.scale_x_y);
+    // fprintf(stderr, "[yolo] params: iou loss: %s (%d), iou_norm: %2.2f, obj_norm: %2.2f, cls_norm: %2.2f, delta_norm: %2.2f, scale_x_y: %2.2f\n",
+    //     iou_loss, l.iou_loss, l.iou_normalizer, l.obj_normalizer, l.cls_normalizer, l.delta_normalizer, l.scale_x_y);
 
     char *iou_thresh_kind_str = option_find_str_quiet(options, "iou_thresh_kind", "iou");
     if (strcmp(iou_thresh_kind_str, "iou") == 0) l.iou_thresh_kind = IOU;
@@ -494,7 +495,7 @@ layer parse_yolo(list *options, size_params params)
         if (strcmp(nms_kind, "greedynms") == 0) l.nms_kind = GREEDY_NMS;
         else if (strcmp(nms_kind, "diounms") == 0) l.nms_kind = DIOU_NMS;
         else l.nms_kind = DEFAULT_NMS;
-        printf("nms_kind: %s (%d), beta = %f \n", nms_kind, l.nms_kind, l.beta_nms);
+        // printf("nms_kind: %s (%d), beta = %f \n", nms_kind, l.nms_kind, l.beta_nms);
     }
 
     l.jitter = option_find_float(options, "jitter", .2);
@@ -625,7 +626,7 @@ layer parse_gaussian_yolo(list *options, size_params params) // Gaussian_YOLOv3
         else if (strcmp(nms_kind, "diounms") == 0) l.nms_kind = DIOU_NMS;
         else if (strcmp(nms_kind, "cornersnms") == 0) l.nms_kind = CORNERS_NMS;
         else l.nms_kind = DEFAULT_NMS;
-        printf("nms_kind: %s (%d), beta = %f \n", nms_kind, l.nms_kind, l.beta_nms);
+        // printf("nms_kind: %s (%d), beta = %f \n", nms_kind, l.nms_kind, l.beta_nms);
     }
 
     char *yolo_point = option_find_str_quiet(options, "yolo_point", "center");
@@ -1107,14 +1108,14 @@ route_layer parse_route(list *options, size_params params)
     layer.h = first.h;
     layer.c = layer.out_c;
 
-    if (n > 3) fprintf(stderr, " \t    ");
-    else if (n > 1) fprintf(stderr, " \t            ");
-    else fprintf(stderr, " \t\t            ");
+    // if (n > 3) fprintf(stderr, " \t    ");
+    // else if (n > 1) fprintf(stderr, " \t            ");
+    // else fprintf(stderr, " \t\t            ");
 
-    fprintf(stderr, "           ");
-    if (layer.groups > 1) fprintf(stderr, "%d/%d", layer.group_id, layer.groups);
-    else fprintf(stderr, "   ");
-    fprintf(stderr, " -> %4d x%4d x%4d \n", layer.out_w, layer.out_h, layer.out_c);
+    // fprintf(stderr, "           ");
+    // if (layer.groups > 1) fprintf(stderr, "%d/%d", layer.group_id, layer.groups);
+    // else fprintf(stderr, "   ");
+    // fprintf(stderr, " -> %4d x%4d x%4d \n", layer.out_w, layer.out_h, layer.out_c);
 
     return layer;
 }
@@ -1366,7 +1367,7 @@ network parse_network_cfg_custom(char *filename, int batch, int time_steps)
     params.batch = net.batch;
     params.time_steps = net.time_steps;
     params.net = net;
-    printf("mini_batch = %d, batch = %d, time_steps = %d, train = %d \n", net.batch, net.batch * net.subdivisions, net.time_steps, params.train);
+    // printf("mini_batch = %d, batch = %d, time_steps = %d, train = %d \n", net.batch, net.batch * net.subdivisions, net.time_steps, params.train);
 
     int avg_outputs = 0;
     int avg_counter = 0;
@@ -1381,10 +1382,10 @@ network parse_network_cfg_custom(char *filename, int batch, int time_steps)
     n = n->next;
     int count = 0;
     free_section(s);
-    fprintf(stderr, "   layer   filters  size/strd(dil)      input                output\n");
+    // fprintf(stderr, "   layer   filters  size/strd(dil)      input                output\n");
     while(n){
         params.index = count;
-        fprintf(stderr, "%4d ", count);
+        // fprintf(stderr, "%4d ", count);
         s = (section *)n->val;
         options = s->options;
         layer l = { (LAYER_TYPE)0 };
@@ -1594,7 +1595,7 @@ network parse_network_cfg_custom(char *filename, int batch, int time_steps)
         l.dontload = option_find_int_quiet(options, "dontload", 0);
         l.dontloadscales = option_find_int_quiet(options, "dontloadscales", 0);
         l.learning_rate_scale = option_find_float_quiet(options, "learning_rate", 1);
-        option_unused(options);
+        // option_unused(options);
         net.layers[count] = l;
         if (l.workspace_size > workspace_size) workspace_size = l.workspace_size;
         if (l.inputs > max_inputs) max_inputs = l.inputs;
@@ -1668,8 +1669,8 @@ network parse_network_cfg_custom(char *filename, int batch, int time_steps)
     net.outputs = get_network_output_size(net);
     net.output = get_network_output(net);
     avg_outputs = avg_outputs / avg_counter;
-    fprintf(stderr, "Total BFLOPS %5.3f \n", bflops);
-    fprintf(stderr, "avg_outputs = %d \n", avg_outputs);
+    // fprintf(stderr, "Total BFLOPS %5.3f \n", bflops);
+    // fprintf(stderr, "avg_outputs = %d \n", avg_outputs);
 #ifdef GPU
     get_cuda_stream();
     get_cuda_memcpy_stream();
@@ -1791,11 +1792,11 @@ void save_shortcut_weights(layer l, FILE *fp)
         printf("\n pull_shortcut_layer \n");
     }
 #endif
-    int i;
+    // int i;
     //if(l.weight_updates) for (i = 0; i < l.nweights; ++i) printf(" %f, ", l.weight_updates[i]);
     //printf(" l.nweights = %d - update \n", l.nweights);
-    for (i = 0; i < l.nweights; ++i) printf(" %f, ", l.weights[i]);
-    printf(" l.nweights = %d \n\n", l.nweights);
+    // for (i = 0; i < l.nweights; ++i) printf(" %f, ", l.weights[i]);
+    // printf(" l.nweights = %d \n\n", l.nweights);
 
     int num = l.nweights;
     fwrite(l.weights, sizeof(float), num, fp);
@@ -2260,11 +2261,11 @@ network *load_network_custom(char *cfg, char *weights, int clear, int batch)
 // load network & get batch size from cfg-file
 network *load_network(char *cfg, char *weights, int clear)
 {
-    printf(" Try to load cfg: %s, clear = %d \n", cfg, clear);
+    // printf(" Try to load cfg: %s, clear = %d \n", cfg, clear);
     network* net = (network*)xcalloc(1, sizeof(network));
     *net = parse_network_cfg(cfg);
     if (weights && weights[0] != 0) {
-        printf(" Try to load weights: %s \n", weights);
+        // printf(" Try to load weights: %s \n", weights);
         load_weights(net, weights);
     }
     if (clear) {
